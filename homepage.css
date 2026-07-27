@@ -8,6 +8,13 @@ h1 {
 body {
     margin: 0;
     background-color: #ffffff;
+    background: url(https://i.pinimg.com/736x/92/46/2f/92462f67950fff66c4380d5eb8c4c68a.jpg);
+    background-size: cover;
+    background-position: center;
+    /* Adjust your background transparency here (0.0 to 1.0) */
+    opacity: 0.4;
+    /* Pushes the background behind the text layer */
+    z-index: -1; 
 }
 
 h2 {
@@ -21,13 +28,14 @@ h2 {
     padding: 10px;
     border-radius: 5px;
     text-align: center;
-    font-size: 12px;
+    font-size: 35px;
 }
 
 .page2 {
     padding: 10px;
     border-radius: 5px;
     text-align: center;
+    font-size: 20px;
 }
 
 .body {
