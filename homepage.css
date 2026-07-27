@@ -1,0 +1,43 @@
+h1 {
+    font-size: 40px;
+    text-align: center;
+    margin: 3px 3px 3px 3px;
+    line-height: 0.9;
+}   
+
+body {
+    margin: 0;
+    background-color: #ffffff;
+}
+
+h2 {
+    font-weight: bold;
+    font-size: 90px;
+    text-align: center;
+    margin: 3px 3px 3px 3px;
+}
+
+.page {
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.body {
+    background-image: url('https://i.pinimg.com/1200x/74/d6/f7/74d6f7209b968eb850ec030ff6064f70.jpg'); 
+    margin: 20px auto 10px;
+    text-align: center;
+    display: flex;
+}
+
+nav {
+    background:rgb(37, 81, 119);
+    padding: 12px 20px;
+    margin: 0 0 20px;
+}
+
+nav a {
+    color:rgb(255, 255, 255);
+    text-decoration: none;
+    font-weight: 600;
+}
