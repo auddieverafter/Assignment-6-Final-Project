@@ -21,10 +21,16 @@ h2 {
     padding: 10px;
     border-radius: 5px;
     text-align: center;
+    font-size: 12px;
+}
+
+.page2 {
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
 }
 
 .body {
-    background-image: url('https://i.pinimg.com/1200x/74/d6/f7/74d6f7209b968eb850ec030ff6064f70.jpg'); 
     margin: 20px auto 10px;
     text-align: center;
     display: flex;
