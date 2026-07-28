@@ -3,6 +3,8 @@ h1 {
     text-align: center;
     margin: 3px 3px 3px 3px;
     line-height: 0.9;
+    position: relative;
+    z-index: 1;
 }   
 
 .home-page-body {
@@ -19,7 +21,7 @@ h1 {
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .home-page-text {
@@ -36,6 +38,8 @@ h2 {
     font-size: 90px;
     text-align: center;
     margin: 3px 3px 3px 3px;
+    position: relative;
+    z-index: 1;
 }
 
 .page {
