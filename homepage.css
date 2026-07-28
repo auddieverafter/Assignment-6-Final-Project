@@ -5,15 +5,22 @@ h1 {
     line-height: 0.9;
 }   
 
-.home-page-background {
-    background: url(https://i.pinimg.com/736x/61/8a/9d/618a9dda96be8863d7746f19fd81786e.jpg);
-    background-size: cover;
-    background-position: center;
-    /* Adjust your background transparency here (0.0 to 1.0) */
-    opacity: 0.4;
-    /* Pushes the background behind the text layer */
-    z-index: -1;
-}
+.home-page-body {
+  position: relative;          /* Establishes positioning context */
+  isolation: isolate;          /* Keeps text layered on top */
+  padding: 40px;
+} 
+
+.home-page-background { 
+  content: ""; 
+  position: absolute;
+  inset: 0;                    /* Spans the entire container */
+  z-index: -1;                 /* Places image behind text */
+  background-image: url('https://i.pinimg.com/736x/61/8a/9d/618a9dda96be8863d7746f19fd81786e.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.7;
+}  
 
 body {
     margin: 0;
