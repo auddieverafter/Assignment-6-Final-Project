@@ -3,70 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple HTML Timer</title>
-    <style>
-        /* Styles the background and center aligns content */
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f2f5;
-            margin: 0;
-        }
-        /* Container box for the timer */
-        .timer-container {
-            text-align: center;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        /* Style for the numbers display */
-        .time-display {
-            font-size: 4rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        /* Button styling */
-        button {
-            font-size: 1rem;
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .start-btn { background-color: #28a745; color: white; }
-        .stop-btn { background-color: #dc3545; color: white; }
-        .reset-btn { background-color: #ffc107; color: #212529; }
-        button:hover { opacity: 0.9; }
-    </style>
+    <title>Focus Timer</title>
+    <link rel="stylesheet" href="timer.css">
 </head>
 <body>
 
     <div class="timer-container">
-        <h2>Countdown Timer</h2>
+        <h2>Pomodoro Timer</h2>
         <!-- This span updates dynamically via JavaScript -->
-        <div class="time-display" id="display">05:00</div>
+        <div class="time-display" id="display">25:00</div>
+        <div id="session-label">Focus Time!</div>
         
         <div class="controls">
             <button class="start-btn" onclick="startTimer()">Start</button>
             <button class="stop-btn" onclick="stopTimer()">Stop</button>
             <button class="reset-btn" onclick="resetTimer()">Reset</button>
+            <button class="mode-btn" onclick="toggleMode()">Switch to Break</button>
         </div>
     </div>
 
     <script>
         // Track core configuration values
         const STARTING_MINUTES = 25;
+        const BREAK_MINUTES = 5;
         let timeInSeconds = STARTING_MINUTES * 60;
         let timerInterval = null;
+        let isBreak = false;
 
         const displayElement = document.getElementById('display');
+        const sessionLabel = document.getElementById('session-label');
+        const modeButton = document.querySelector('.mode-btn');
 
         // Formats numbers less than 10 to always have a leading zero
         function formatTime(seconds) {
@@ -79,8 +45,22 @@
         function updateTimer() {
             if (timeInSeconds <= 0) {
                 clearInterval(timerInterval);
-                displayElement.textContent = "00:00";
-                alert("Time is up!");
+                timerInterval = null;
+
+                if (!isBreak) {
+                    isBreak = true;
+                    timeInSeconds = BREAK_MINUTES * 60;
+                    sessionLabel.textContent = "Break Time!";
+                    displayElement.textContent = formatTime(timeInSeconds);
+                    alert("25 minutes is up! Time for a 5-minute break.");
+                    startTimer();
+                } else {
+                    isBreak = false;
+                    timeInSeconds = STARTING_MINUTES * 60;
+                    sessionLabel.textContent = "Focus Time!";
+                    displayElement.textContent = formatTime(timeInSeconds);
+                    alert("Break is over! Back to work.");
+                }
                 return;
             }
             timeInSeconds--;
@@ -92,6 +72,7 @@
             // Prevent multiple intervals running at the same time
             if (timerInterval !== null) return; 
             
+            sessionLabel.textContent = isBreak ? "Break Time!" : "Focus Time!";
             timerInterval = setInterval(updateTimer, 1000);
         }
 
@@ -102,8 +83,20 @@
 
         function resetTimer() {
             stopTimer();
+            isBreak = false;
             timeInSeconds = STARTING_MINUTES * 60;
+            sessionLabel.textContent = "Focus Time!";
             displayElement.textContent = formatTime(timeInSeconds);
+            modeButton.textContent = "Switch to Break";
+        }
+
+        function toggleMode() {
+            stopTimer();
+            isBreak = !isBreak;
+            timeInSeconds = isBreak ? BREAK_MINUTES * 60 : STARTING_MINUTES * 60;
+            sessionLabel.textContent = isBreak ? "Break Time!" : "Focus Time!";
+            displayElement.textContent = formatTime(timeInSeconds);
+            modeButton.textContent = isBreak ? "Switch to Focus" : "Switch to Break";
         }
     </script>
 

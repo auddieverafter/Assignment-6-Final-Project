@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #c6ddff;
+    margin: 0;
+}
+
+.timer-container {
+    text-align: center;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.time-display {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#session-label {
+    margin-bottom: 12px;
+    color: #666;
+}
+
+button {
+    font-size: 1rem;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.start-btn { background-color: #b5fdc5; color: white; }
+.stop-btn { background-color: #fbb1b9; color: white; }
+.reset-btn { background-color: #feeaae; color: #212529; }
+.mode-btn { background-color: #b6dbff; color: white; }
+
+button:hover { opacity: 0.9; }
