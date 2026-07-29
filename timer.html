@@ -33,6 +33,14 @@
         const displayElement = document.getElementById('display');
         const sessionLabel = document.getElementById('session-label');
         const modeButton = document.querySelector('.mode-btn');
+        const bodyElement = document.body;
+
+        function updateTheme() {
+            bodyElement.classList.toggle('break-mode', isBreak);
+            bodyElement.classList.toggle('focus-mode', !isBreak);
+        }
+
+        updateTheme();
 
         // Formats numbers less than 10 to always have a leading zero
         function formatTime(seconds) {
@@ -52,6 +60,7 @@
                     timeInSeconds = BREAK_MINUTES * 60;
                     sessionLabel.textContent = "Break Time!";
                     displayElement.textContent = formatTime(timeInSeconds);
+                    updateTheme();
                     alert("25 minutes is up! Time for a 5-minute break.");
                     startTimer();
                 } else {
@@ -59,6 +68,7 @@
                     timeInSeconds = STARTING_MINUTES * 60;
                     sessionLabel.textContent = "Focus Time!";
                     displayElement.textContent = formatTime(timeInSeconds);
+                    updateTheme();
                     alert("Break is over! Back to work.");
                 }
                 return;
@@ -73,6 +83,7 @@
             if (timerInterval !== null) return; 
             
             sessionLabel.textContent = isBreak ? "Break Time!" : "Focus Time!";
+            updateTheme();
             timerInterval = setInterval(updateTimer, 1000);
         }
 
@@ -87,6 +98,7 @@
             timeInSeconds = STARTING_MINUTES * 60;
             sessionLabel.textContent = "Focus Time!";
             displayElement.textContent = formatTime(timeInSeconds);
+            updateTheme();
             modeButton.textContent = "Switch to Break";
         }
 
@@ -96,6 +108,7 @@
             timeInSeconds = isBreak ? BREAK_MINUTES * 60 : STARTING_MINUTES * 60;
             sessionLabel.textContent = isBreak ? "Break Time!" : "Focus Time!";
             displayElement.textContent = formatTime(timeInSeconds);
+            updateTheme();
             modeButton.textContent = isBreak ? "Switch to Focus" : "Switch to Break";
         }
     </script>

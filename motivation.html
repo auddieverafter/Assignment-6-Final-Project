@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Motivation</title>
+        <link rel="stylesheet" href="motivation.css">
+        <link rel="icon" href="https://i.pinimg.com/736x/19/ec/e5/19ece509d52fd175e2da99ea10e8616e.jpg">
+    </head>
+    <body>
+        <nav>
+            <ul>
+                <li><a href="timer.html">Focus Timer</a></li>
+                <li><a href="homepage.html">Motivation</a></li>
+                <li><a href="progress.html">Work Progress</a></li>
+                <li><a href="flashcards.html">Flashcards</a></li>
+                <li><a href="planner.html">Calendar Planner</a></li>
+            </ul>
+        </nav>
+        <div class="motivation-container">
+            <div class="quote-box" onclick="changeQuote()">
+                <h2 id="quote-text">Winners aren't afraid of making mistakes.</h2>
+            </div>
+        </div>
+
+        <script>
+            const quotes = [
+                "Winners aren't afraid of making mistakes.",
+                "Never forget how wildly capable you are.",
+                "Study so hard you look forward to your tests.",
+                "I will always find a way.",
+                "Don't let your dreams be dreams.",
+                "I am going to succeed because I am crazy.",
+                "Don't think much, just study and get it done for today.",
+                "Studying doesn't suck as much as failing.",
+                "Growth isn't always comfortable.",
+                "People who avoid failures, also avoid success.",
+                "Of course it's hard, if it were easy, everyone would do it.",
+                "The only thing stopping you is your potential.",
+                "If you know you can do better, do better.",
+                "The future depends on what you do right now.",
+                "Be addicted to your passions, not distractions."
+            ];
+
+            let quoteIndex = 0;
+
+            function changeQuote() {
+                const quoteText = document.getElementById("quote-text");
+                quoteText.classList.remove("fade-in");
+                void quoteText.offsetWidth;
+                quoteIndex = (quoteIndex + 1) % quotes.length;
+                quoteText.textContent = quotes[quoteIndex];
+                quoteText.classList.add("fade-in");
+            }
+        </script>
+    </body>
+</html>
