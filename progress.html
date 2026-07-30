@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assignment Planner</title>
+    <link rel="stylesheet" href="progress.css" />
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="timer.html">Focus Timer</a></li>
+        <li><a href="homepage.html">Home</a></li>
+        <li><a href="planner.html">Planner</a></li>
+        <li><a href="motivation.html">Motivation</a></li>
+      </ul>
+    </nav>
+
+    <main class="progress-page">
+      <section class="progress-card">
+        <header class="progress-header">
+          <div>
+            <p class="eyebrow">Assignment Tracker</p>
+            <h1>Planner Box Checklist</h1>
+          </div>
+          <p class="status-note">Select a date and add assignment cards below.</p>
+        </header>
+
+        <div class="progress-body">
+          <aside class="progress-sidebar">
+            <div class="date-selector" aria-label="Select a date">
+              <button id="prevDay" type="button" aria-label="Previous day">←</button>
+              <div>
+                <p class="sidebar-label">Selected day</p>
+                <p id="selectedDate" class="selected-date">Loading...</p>
+              </div>
+              <button id="nextDay" type="button" aria-label="Next day">→</button>
+            </div>
+
+            <form id="taskForm" class="task-form">
+              <label for="taskInput">Add assignment</label>
+              <input id="taskInput" type="text" placeholder="Write a checklist item" required />
+              <button type="submit">Add</button>
+            </form>
+
+            <div class="summary-card">
+              <p class="summary-title">Day summary</p>
+              <p><strong id="taskTotal">0</strong> tasks</p>
+              <p><strong id="taskComplete">0</strong> completed</p>
+              <button id="clearCompleted" type="button" class="secondary-btn">Clear completed</button>
+            </div>
+          </aside>
+
+          <section class="board-panel">
+            <div class="board-top">
+              <div>
+                <p class="eyebrow">Checklist Grid</p>
+                <h2>Planner-style boxes</h2>
+              </div>
+              <p class="board-note">Tap cards to mark done, or remove items as you finish them.</p>
+            </div>
+
+            <div id="taskGrid" class="task-grid" aria-live="polite"></div>
+            <p id="emptyState" class="empty-state">No assignment cards yet for this date. Add one to fill the grid.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const selectedDateEl = document.getElementById("selectedDate");
+      const taskForm = document.getElementById("taskForm");
+      const taskInput = document.getElementById("taskInput");
+      const taskGrid = document.getElementById("taskGrid");
+      const emptyState = document.getElementById("emptyState");
+      const taskTotal = document.getElementById("taskTotal");
+      const taskComplete = document.getElementById("taskComplete");
+      const clearCompletedBtn = document.getElementById("clearCompleted");
+      const prevDayBtn = document.getElementById("prevDay");
+      const nextDayBtn = document.getElementById("nextDay");
+
+      const state = {
+        selectedDate: new Date(),
+      };
+
+      const tasksByDate = JSON.parse(window.localStorage.getItem("progressTasks") || "{}");
+
+      const sampleTasks = {
+        [getDateKey(new Date())]: [
+          { text: "Math essay draft", complete: false },
+          { text: "Science lab prep", complete: true },
+          { text: "History reading notes", complete: false },
+        ],
+      };
+
+      Object.keys(sampleTasks).forEach((key) => {
+        if (!tasksByDate[key]) {
+          tasksByDate[key] = sampleTasks[key];
+        }
+      });
+
+      function getDateKey(date) {
+        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+      }
+
+      function formatDate(date) {
+        return new Intl.DateTimeFormat("en", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }).format(date);
+      }
+
+      function saveTasks() {
+        window.localStorage.setItem("progressTasks", JSON.stringify(tasksByDate));
+      }
+
+      function updateSelectedDate(deltaDays = 0) {
+        state.selectedDate.setDate(state.selectedDate.getDate() + deltaDays);
+        renderBoard();
+      }
+
+      function renderBoard() {
+        selectedDateEl.textContent = formatDate(state.selectedDate);
+        const dateKey = getDateKey(state.selectedDate);
+        const tasks = tasksByDate[dateKey] || [];
+
+        taskGrid.innerHTML = "";
+        if (!tasks.length) {
+          emptyState.style.display = "block";
+        } else {
+          emptyState.style.display = "none";
+          tasks.forEach((task, index) => {
+            const card = document.createElement("article");
+            card.className = `task-card ${task.complete ? "complete" : ""}`;
+            card.innerHTML = `
+              <div class="card-top">
+                <span class="card-badge">${task.complete ? "Done" : "Pending"}</span>
+                <button type="button" class="remove-btn" aria-label="Remove task">✕</button>
+              </div>
+              <p class="card-text">${task.text}</p>
+              <label class="card-checkbox">
+                <input type="checkbox" ${task.complete ? "checked" : ""} />
+                <span>Mark complete</span>
+              </label>
+            `;
+
+            const checkbox = card.querySelector("input");
+            const removeBtn = card.querySelector(".remove-btn");
+
+            checkbox.addEventListener("change", () => {
+              tasksByDate[dateKey][index].complete = checkbox.checked;
+              saveTasks();
+              renderBoard();
+            });
+
+            removeBtn.addEventListener("click", () => {
+              tasksByDate[dateKey].splice(index, 1);
+              if (!tasksByDate[dateKey].length) {
+                delete tasksByDate[dateKey];
+              }
+              saveTasks();
+              renderBoard();
+            });
+
+            taskGrid.appendChild(card);
+          });
+        }
+
+        taskTotal.textContent = tasks.length;
+        taskComplete.textContent = tasks.filter((task) => task.complete).length;
+      }
+
+      taskForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const text = taskInput.value.trim();
+        if (!text) return;
+
+        const dateKey = getDateKey(state.selectedDate);
+        if (!tasksByDate[dateKey]) {
+          tasksByDate[dateKey] = [];
+        }
+
+        tasksByDate[dateKey].push({ text, complete: false });
+        saveTasks();
+        taskInput.value = "";
+        renderBoard();
+      });
+
+      clearCompletedBtn.addEventListener("click", () => {
+        const dateKey = getDateKey(state.selectedDate);
+        if (!tasksByDate[dateKey]) return;
+
+        tasksByDate[dateKey] = tasksByDate[dateKey].filter((task) => !task.complete);
+        if (!tasksByDate[dateKey].length) {
+          delete tasksByDate[dateKey];
+        }
+        saveTasks();
+        renderBoard();
+      });
+
+      prevDayBtn.addEventListener("click", () => updateSelectedDate(-1));
+      nextDayBtn.addEventListener("click", () => updateSelectedDate(1));
+
+      renderBoard();
+    </script>
+  </body>
+</html>

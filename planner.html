@@ -12,7 +12,6 @@
             <li><a href="timer.html">Focus Timer</a></li>
             <li><a href="homepage.html">Motivation</a></li>
             <li><a href="progress.html">Work Progress</a></li>
-            <li><a href="flashcards.html">Flashcards</a></li>
             <li><a href="motivation.html">Motivation</a></li>
         </ul>
     </nav>
@@ -49,6 +48,25 @@
           <h2>Selected day</h2>
           <p id="selectedDate" class="selected-date">Choose a date</p>
           <ul id="dayTasks" class="task-list"></ul>
+
+          <form id="taskForm" class="task-form">
+            <label for="taskInput" class="visually-hidden">New checklist item</label>
+            <input id="taskInput" name="taskInput" type="text" placeholder="Add an assignment or checklist item" required />
+            <button type="submit">Add task</button>
+          </form>
+        </section>
+
+        <section class="planner-checklist" aria-live="polite">
+          <div class="planner-checklist-header">
+            <div>
+              <p class="eyebrow">Planner Checklist</p>
+              <h2>Track assignments in a box grid</h2>
+            </div>
+            <button id="clearCompleted" class="secondary-btn" type="button">Clear completed</button>
+          </div>
+
+          <div id="checklistGrid" class="checklist-grid"></div>
+          <p id="checklistEmpty" class="empty-state">No checklist items yet. Add one to turn this into a planner-style task board.</p>
         </section>
       </section>
     </main>
@@ -60,6 +78,379 @@
       const dayTasks = document.getElementById("dayTasks");
       const prevMonthBtn = document.getElementById("prevMonth");
       const nextMonthBtn = document.getElementById("nextMonth");
+      const taskForm = document.getElementById("taskForm");
+      const taskInput = document.getElementById("taskInput");
+      const checklistGrid = document.getElementById("checklistGrid");
+      const checklistEmpty = document.getElementById("checklistEmpty");
+      const clearCompletedBtn = document.getElementById("clearCompleted");
+
+      const state = {
+        currentDate: new Date(),
+        selectedDate: new Date(),
+      };
+
+      const tasksByDate = JSON.parse(window.localStorage.getItem("plannerTasks") || "{}");
+
+      const sampleTasks = {
+        "2026-7-3": [
+          { text: "Math review", complete: false },
+          { text: "Flashcards", complete: true },
+        ],
+        "2026-7-8": [{ text: "Reading chapter", complete: false }],
+        "2026-7-12": [{ text: "Project milestone", complete: false }],
+      };
+
+      Object.keys(sampleTasks).forEach((key) => {
+        if (!tasksByDate[key]) {
+          tasksByDate[key] = sampleTasks[key];
+        }
+      });
+
+      function saveTasks() {
+        window.localStorage.setItem("plannerTasks", JSON.stringify(tasksByDate));
+      }
+
+      function getDateKey(date) {
+        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+      }
+
+      function formatDate(date) {
+        return new Intl.DateTimeFormat("en", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }).format(date);
+      }
+
+      function renderCalendar() {
+        const year = state.currentDate.getFullYear();
+        const month = state.currentDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+        monthLabel.textContent = new Intl.DateTimeFormat("en", {
+          month: "long",
+          year: "numeric",
+        }).format(state.currentDate);
+
+        const cells = [];
+
+        for (let i = firstDay - 1; i >= 0; i -= 1) {
+          const day = daysInPrevMonth - i;
+          cells.push(createCell(day, true));
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          cells.push(createCell(day, false));
+        }
+
+        while (cells.length % 7 !== 0) {
+          cells.push(createCell(cells.length % 7 + 1, true));
+        }
+
+        calendarGrid.innerHTML = "";
+        cells.forEach((cell) => calendarGrid.appendChild(cell));
+        updateSelectedDay();
+      }
+
+      function createCell(day, isOtherMonth) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "day-cell";
+
+        if (isOtherMonth) {
+          cell.classList.add("muted");
+        }
+
+        const date = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
+        if (!isOtherMonth) {
+          const today = new Date();
+          if (
+            date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear()
+          ) {
+            cell.classList.add("today");
+          }
+        }
+
+        if (
+          state.selectedDate.getDate() === day &&
+          state.selectedDate.getMonth() === state.currentDate.getMonth() &&
+          state.selectedDate.getFullYear() === state.currentDate.getFullYear() &&
+          !isOtherMonth
+        ) {
+          cell.classList.add("selected");
+        }
+
+        cell.dataset.day = day;
+        cell.innerHTML = `<span class="day-number">${day}</span>`;
+
+        const dateKey = `${state.currentDate.getFullYear()}-${state.currentDate.getMonth() + 1}-${day}`;
+        const dayTasksList = tasksByDate[dateKey];
+        if (dayTasksList && dayTasksList.length) {
+          const chip = document.createElement("span");
+          chip.className = "event-chip";
+          chip.textContent = dayTasksList[0].text;
+          cell.appendChild(chip);
+        }
+
+        cell.addEventListener("click", () => {
+          state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
+          renderCalendar();
+        });
+
+        return cell;
+      }
+
+      function updateSelectedDay() {
+        selectedDateEl.textContent = formatDate(state.selectedDate);
+        const dateKey = getDateKey(state.selectedDate);
+        const tasks = tasksByDate[dateKey] || [];
+
+        dayTasks.innerHTML = "";
+        if (tasks.length) {
+          tasks.forEach((task) => {
+            const item = document.createElement("li");
+            item.textContent = `${task.complete ? "✓ " : ""}${task.text}`;
+            dayTasks.appendChild(item);
+          });
+        } else {
+          const item = document.createElement("li");
+          item.textContent = "No plans yet — add one to stay on track.";
+          dayTasks.appendChild(item);
+        }
+
+        renderChecklist();
+      }
+
+      function renderChecklist() {
+        const dateKey = getDateKey(state.selectedDate);
+        const tasks = tasksByDate[dateKey] || [];
+
+        checklistGrid.innerHTML = "";
+        if (!tasks.length) {
+          checklistEmpty.style.display = "block";
+          return;
+        }
+
+        checklistEmpty.style.display = "none";
+        tasks.forEach((task, index) => {
+          const itemCard = document.createElement("article");
+          itemCard.className = `checklist-item${task.complete ? " complete" : ""}`;
+
+          itemCard.innerHTML = `
+            <label class="item-checkbox">
+              <input type="checkbox" ${task.complete ? "checked" : ""} aria-label="Mark task complete" />
+              <span class="item-title">${task.text}</span>
+            </label>
+            <button type="button" class="remove-btn" aria-label="Remove task">Remove</button>
+          `;
+
+          const checkbox = itemCard.querySelector("input");
+          const removeBtn = itemCard.querySelector(".remove-btn");
+
+          checkbox.addEventListener("change", () => {
+            tasksByDate[dateKey][index].complete = checkbox.checked;
+            saveTasks();
+            updateSelectedDay();
+          });
+
+          removeBtn.addEventListener("click", () => {
+            tasksByDate[dateKey].splice(index, 1);
+            if (!tasksByDate[dateKey].length) {
+              delete tasksByDate[dateKey];
+            }
+            saveTasks();
+            updateSelectedDay();
+          });
+
+          checklistGrid.appendChild(itemCard);
+        });
+      }
+
+      taskForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const text = taskInput.value.trim();
+        if (!text) return;
+
+        const dateKey = getDateKey(state.selectedDate);
+        if (!tasksByDate[dateKey]) {
+          tasksByDate[dateKey] = [];
+        }
+        tasksByDate[dateKey].push({ text, complete: false });
+        saveTasks();
+        taskInput.value = "";
+        updateSelectedDay();
+      });
+
+      clearCompletedBtn.addEventListener("click", () => {
+        const dateKey = getDateKey(state.selectedDate);
+        if (!tasksByDate[dateKey]) return;
+        tasksByDate[dateKey] = tasksByDate[dateKey].filter((task) => !task.complete);
+        if (!tasksByDate[dateKey].length) {
+          delete tasksByDate[dateKey];
+        }
+        saveTasks();
+        updateSelectedDay();
+      });
+
+      prevMonthBtn.addEventListener("click", () => {
+        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() - 1, 1);
+        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+        renderCalendar();
+      });
+
+      nextMonthBtn.addEventListener("click", () => {
+        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 1);
+        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+        renderCalendar();
+      });
+
+      renderCalendar();
+    </script>
+
+      const state = {
+        currentDate: new Date(),
+        selectedDate: new Date(),
+      };
+
+      const events = {
+        "2026-7": {
+          3: ["Math review", "Flashcards"],
+          8: ["Reading chapter"],
+          12: ["Project milestone"],
+          19: ["Break and reset"],
+          24: ["Meditation"],
+          28: ["Exam prep"],
+          30: ["Plan next week"],
+        },
+      };
+
+      function formatDate(date) {
+        return new Intl.DateTimeFormat("en", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }).format(date);
+      }
+
+      function renderCalendar() {
+        const year = state.currentDate.getFullYear();
+        const month = state.currentDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+        monthLabel.textContent = new Intl.DateTimeFormat("en", {
+          month: "long",
+          year: "numeric",
+        }).format(state.currentDate);
+
+        const cells = [];
+
+        for (let i = firstDay - 1; i >= 0; i -= 1) {
+          const day = daysInPrevMonth - i;
+          cells.push(createCell(day, true));
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          cells.push(createCell(day, false));
+        }
+
+        while (cells.length % 7 !== 0) {
+          cells.push(createCell(cells.length % 7 + 1, true));
+        }
+
+        calendarGrid.innerHTML = "";
+        cells.forEach((cell) => calendarGrid.appendChild(cell));
+        updateSelectedDay();
+      }
+
+      function createCell(day, isOtherMonth) {
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "day-cell";
+
+        if (isOtherMonth) {
+          cell.classList.add("muted");
+        }
+
+        const date = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
+        if (!isOtherMonth) {
+          const today = new Date();
+          if (
+            date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear()
+          ) {
+            cell.classList.add("today");
+          }
+        }
+
+        if (
+          state.selectedDate.getDate() === day &&
+          state.selectedDate.getMonth() === state.currentDate.getMonth() &&
+          state.selectedDate.getFullYear() === state.currentDate.getFullYear() &&
+          !isOtherMonth
+        ) {
+          cell.classList.add("selected");
+        }
+
+        cell.dataset.day = day;
+        cell.innerHTML = `<span class="day-number">${day}</span>`;
+
+        const eventKey = `${state.currentDate.getFullYear()}-${state.currentDate.getMonth() + 1}`;
+        const dayEvents = events[eventKey]?.[day];
+        if (dayEvents) {
+          const chip = document.createElement("span");
+          chip.className = "event-chip";
+          chip.textContent = dayEvents[0];
+          cell.appendChild(chip);
+        }
+
+        cell.addEventListener("click", () => {
+          state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
+          renderCalendar();
+        });
+
+        return cell;
+      }
+
+      function updateSelectedDay() {
+        selectedDateEl.textContent = formatDate(state.selectedDate);
+        const eventKey = `${state.selectedDate.getFullYear()}-${state.selectedDate.getMonth() + 1}`;
+        const dayEvents = events[eventKey]?.[state.selectedDate.getDate()];
+
+        dayTasks.innerHTML = "";
+        if (dayEvents && dayEvents.length) {
+          dayEvents.forEach((task) => {
+            const item = document.createElement("li");
+            item.textContent = task;
+            dayTasks.appendChild(item);
+          });
+        } else {
+          const item = document.createElement("li");
+          item.textContent = "No plans yet — add one to stay on track.";
+          dayTasks.appendChild(item);
+        }
+      }
+
+      prevMonthBtn.addEventListener("click", () => {
+        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() - 1, 1);
+        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+        renderCalendar();
+      });
+
+      nextMonthBtn.addEventListener("click", () => {
+        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 1);
+        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+        renderCalendar();
+      });
+
+      renderCalendar();
+    </script>
 
       const state = {
         currentDate: new Date(),
