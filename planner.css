@@ -91,12 +91,12 @@ h2 {
   height: 40px;
   border-radius: 50%;
   font-size: 1.1rem;
-  cursor: pointer;
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
-.nav-btn:hover {
-  background: var(--accent);
-  color: white;
+.nav-btn:disabled {
+  opacity: 0.65;
 }
 
 .weekdays,
@@ -131,13 +131,8 @@ h2 {
   align-items: flex-start;
   justify-content: flex-start;
   gap: 8px;
-  cursor: pointer;
+  cursor: default;
   text-align: left;
-}
-
-.day-cell:hover {
-  border-color: var(--accent);
-  transform: translateY(-1px);
 }
 
 .day-cell.muted {

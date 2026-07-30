@@ -18,7 +18,7 @@
     <main class="planner-page">
       <section class="planner-card">
         <header class="planner-header">
-          <button id="prevMonth" class="nav-btn" type="button" aria-label="Previous month">
+          <button id="prevMonth" class="nav-btn" type="button" aria-label="Previous month" disabled>
             ←
           </button>
 
@@ -27,7 +27,7 @@
             <h1 id="monthLabel">Month</h1>
           </div>
 
-          <button id="nextMonth" class="nav-btn" type="button" aria-label="Next month">
+          <button id="nextMonth" class="nav-btn" type="button" aria-label="Next month" disabled>
             →
           </button>
         </header>
@@ -155,8 +155,7 @@
       }
 
       function createCell(day, isOtherMonth) {
-        const cell = document.createElement("button");
-        cell.type = "button";
+        const cell = document.createElement("div");
         cell.className = "day-cell";
 
         if (isOtherMonth) {
@@ -175,15 +174,6 @@
           }
         }
 
-        if (
-          state.selectedDate.getDate() === day &&
-          state.selectedDate.getMonth() === state.currentDate.getMonth() &&
-          state.selectedDate.getFullYear() === state.currentDate.getFullYear() &&
-          !isOtherMonth
-        ) {
-          cell.classList.add("selected");
-        }
-
         cell.dataset.day = day;
         cell.innerHTML = `<span class="day-number">${day}</span>`;
 
@@ -195,11 +185,6 @@
           chip.textContent = dayTasksList[0].text;
           cell.appendChild(chip);
         }
-
-        cell.addEventListener("click", () => {
-          state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
-          renderCalendar();
-        });
 
         return cell;
       }
@@ -294,300 +279,6 @@
         }
         saveTasks();
         updateSelectedDay();
-      });
-
-      prevMonthBtn.addEventListener("click", () => {
-        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() - 1, 1);
-        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        renderCalendar();
-      });
-
-      nextMonthBtn.addEventListener("click", () => {
-        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 1);
-        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        renderCalendar();
-      });
-
-      renderCalendar();
-    </script>
-
-      const state = {
-        currentDate: new Date(),
-        selectedDate: new Date(),
-      };
-
-      const events = {
-        "2026-7": {
-          3: ["Math review", "Flashcards"],
-          8: ["Reading chapter"],
-          12: ["Project milestone"],
-          19: ["Break and reset"],
-          24: ["Meditation"],
-          28: ["Exam prep"],
-          30: ["Plan next week"],
-        },
-      };
-
-      function formatDate(date) {
-        return new Intl.DateTimeFormat("en", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        }).format(date);
-      }
-
-      function renderCalendar() {
-        const year = state.currentDate.getFullYear();
-        const month = state.currentDate.getMonth();
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-        monthLabel.textContent = new Intl.DateTimeFormat("en", {
-          month: "long",
-          year: "numeric",
-        }).format(state.currentDate);
-
-        const cells = [];
-
-        for (let i = firstDay - 1; i >= 0; i -= 1) {
-          const day = daysInPrevMonth - i;
-          cells.push(createCell(day, true));
-        }
-
-        for (let day = 1; day <= daysInMonth; day += 1) {
-          cells.push(createCell(day, false));
-        }
-
-        while (cells.length % 7 !== 0) {
-          cells.push(createCell(cells.length % 7 + 1, true));
-        }
-
-        calendarGrid.innerHTML = "";
-        cells.forEach((cell) => calendarGrid.appendChild(cell));
-        updateSelectedDay();
-      }
-
-      function createCell(day, isOtherMonth) {
-        const cell = document.createElement("button");
-        cell.type = "button";
-        cell.className = "day-cell";
-
-        if (isOtherMonth) {
-          cell.classList.add("muted");
-        }
-
-        const date = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
-        if (!isOtherMonth) {
-          const today = new Date();
-          if (
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear()
-          ) {
-            cell.classList.add("today");
-          }
-        }
-
-        if (
-          state.selectedDate.getDate() === day &&
-          state.selectedDate.getMonth() === state.currentDate.getMonth() &&
-          state.selectedDate.getFullYear() === state.currentDate.getFullYear() &&
-          !isOtherMonth
-        ) {
-          cell.classList.add("selected");
-        }
-
-        cell.dataset.day = day;
-        cell.innerHTML = `<span class="day-number">${day}</span>`;
-
-        const eventKey = `${state.currentDate.getFullYear()}-${state.currentDate.getMonth() + 1}`;
-        const dayEvents = events[eventKey]?.[day];
-        if (dayEvents) {
-          const chip = document.createElement("span");
-          chip.className = "event-chip";
-          chip.textContent = dayEvents[0];
-          cell.appendChild(chip);
-        }
-
-        cell.addEventListener("click", () => {
-          state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
-          renderCalendar();
-        });
-
-        return cell;
-      }
-
-      function updateSelectedDay() {
-        selectedDateEl.textContent = formatDate(state.selectedDate);
-        const eventKey = `${state.selectedDate.getFullYear()}-${state.selectedDate.getMonth() + 1}`;
-        const dayEvents = events[eventKey]?.[state.selectedDate.getDate()];
-
-        dayTasks.innerHTML = "";
-        if (dayEvents && dayEvents.length) {
-          dayEvents.forEach((task) => {
-            const item = document.createElement("li");
-            item.textContent = task;
-            dayTasks.appendChild(item);
-          });
-        } else {
-          const item = document.createElement("li");
-          item.textContent = "No plans yet — add one to stay on track.";
-          dayTasks.appendChild(item);
-        }
-      }
-
-      prevMonthBtn.addEventListener("click", () => {
-        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() - 1, 1);
-        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        renderCalendar();
-      });
-
-      nextMonthBtn.addEventListener("click", () => {
-        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 1);
-        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        renderCalendar();
-      });
-
-      renderCalendar();
-    </script>
-
-      const state = {
-        currentDate: new Date(),
-        selectedDate: new Date(),
-      };
-
-      const events = {
-        "2026-7": {
-          3: ["Math review", "Flashcards"],
-          8: ["Reading chapter"],
-          12: ["Project milestone"],
-          19: ["Break and reset"],
-          24: ["Meditation"],
-          28: ["Exam prep"],
-          30: ["Plan next week"],
-        },
-      };
-
-      function formatDate(date) {
-        return new Intl.DateTimeFormat("en", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        }).format(date);
-      }
-
-      function renderCalendar() {
-        const year = state.currentDate.getFullYear();
-        const month = state.currentDate.getMonth();
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-        monthLabel.textContent = new Intl.DateTimeFormat("en", {
-          month: "long",
-          year: "numeric",
-        }).format(state.currentDate);
-
-        const cells = [];
-
-        for (let i = firstDay - 1; i >= 0; i -= 1) {
-          const day = daysInPrevMonth - i;
-          cells.push(createCell(day, true));
-        }
-
-        for (let day = 1; day <= daysInMonth; day += 1) {
-          cells.push(createCell(day, false));
-        }
-
-        while (cells.length % 7 !== 0) {
-          cells.push(createCell(cells.length % 7 + 1, true));
-        }
-
-        calendarGrid.innerHTML = "";
-        cells.forEach((cell) => calendarGrid.appendChild(cell));
-        updateSelectedDay();
-      }
-
-      function createCell(day, isOtherMonth) {
-        const cell = document.createElement("button");
-        cell.type = "button";
-        cell.className = "day-cell";
-
-        if (isOtherMonth) {
-          cell.classList.add("muted");
-        }
-
-        const date = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
-        if (!isOtherMonth) {
-          const today = new Date();
-          if (
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear()
-          ) {
-            cell.classList.add("today");
-          }
-        }
-
-        if (
-          state.selectedDate.getDate() === day &&
-          state.selectedDate.getMonth() === state.currentDate.getMonth() &&
-          state.selectedDate.getFullYear() === state.currentDate.getFullYear() &&
-          !isOtherMonth
-        ) {
-          cell.classList.add("selected");
-        }
-
-        cell.dataset.day = day;
-        cell.innerHTML = `<span class="day-number">${day}</span>`;
-
-        const eventKey = `${state.currentDate.getFullYear()}-${state.currentDate.getMonth() + 1}`;
-        const dayEvents = events[eventKey]?.[day];
-        if (dayEvents) {
-          const chip = document.createElement("span");
-          chip.className = "event-chip";
-          chip.textContent = dayEvents[0];
-          cell.appendChild(chip);
-        }
-
-        cell.addEventListener("click", () => {
-          state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), day);
-          renderCalendar();
-        });
-
-        return cell;
-      }
-
-      function updateSelectedDay() {
-        selectedDateEl.textContent = formatDate(state.selectedDate);
-        const eventKey = `${state.selectedDate.getFullYear()}-${state.selectedDate.getMonth() + 1}`;
-        const dayEvents = events[eventKey]?.[state.selectedDate.getDate()];
-
-        dayTasks.innerHTML = "";
-        if (dayEvents && dayEvents.length) {
-          dayEvents.forEach((task) => {
-            const item = document.createElement("li");
-            item.textContent = task;
-            dayTasks.appendChild(item);
-          });
-        } else {
-          const item = document.createElement("li");
-          item.textContent = "No plans yet — add one to stay on track.";
-          dayTasks.appendChild(item);
-        }
-      }
-
-      prevMonthBtn.addEventListener("click", () => {
-        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() - 1, 1);
-        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        renderCalendar();
-      });
-
-      nextMonthBtn.addEventListener("click", () => {
-        state.currentDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 1);
-        state.selectedDate = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        renderCalendar();
       });
 
       renderCalendar();
