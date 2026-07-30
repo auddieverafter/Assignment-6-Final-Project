@@ -286,6 +286,67 @@ p {
   border: 1px dashed rgba(91, 141, 239, 0.35);
 }
 
+.checklist-table-wrapper {
+  margin-top: 28px;
+  padding: 22px;
+  background: #f8fbff;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(91, 141, 239, 0.08);
+}
+
+.task-table th,
+.task-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.task-table th {
+  background: #eef4ff;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.task-table tr:last-child td {
+  border-bottom: none;
+}
+
+.task-table tr.complete {
+  opacity: 0.72;
+}
+
+.task-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.task-table button.table-remove {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
 @media (max-width: 980px) {
   .progress-body {
     grid-template-columns: 1fr;
