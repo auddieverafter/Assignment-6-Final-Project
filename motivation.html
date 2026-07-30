@@ -19,6 +19,10 @@
             <div class="quote-box" onclick="changeQuote()">
                 <h2 id="quote-text">Winners aren't afraid of making mistakes.</h2>
             </div>
+
+            <div class="image-frame">
+                <img id="study-image" src="https://i.pinimg.com/736x/92/46/2f/92462f67950fff66c4380d5eb8c4c68a.jpg" alt="Studying 1">
+            </div>
         </div>
 
         <script>
@@ -40,15 +44,36 @@
                 "Be addicted to your passions, not distractions."
             ];
 
+            const studyImages = [
+                { src: "https://i.pinimg.com/736x/92/46/2f/92462f67950fff66c4380d5eb8c4c68a.jpg", alt: "Studying 1" },
+                { src: "https://i.pinimg.com/1200x/7c/cb/35/7ccb35b292e59b7d459fbf77bfa5725a.jpg", alt: "Studying 2" },
+                { src: "https://i.pinimg.com/736x/2f/36/f0/2f36f0b09b4504b289562d1308a2639a.jpg", alt: "Studying 3" },
+                { src: "https://i.pinimg.com/736x/3e/dd/5d/3edd5daad3669f184657fc9305104ebb.jpg", alt: "Studying 4" },
+                { src: "https://i.pinimg.com/736x/2f/d2/84/2fd284cf6d61bf9a71138c629177cdb6.jpg", alt: "Studying 5" },
+                { src: "https://i.pinimg.com/736x/89/4e/b4/894eb436eaf363e7bf2aa8ff34d0e54a.jpg", alt: "Studying 6" }
+            ];
+
             let quoteIndex = 0;
+            let imageIndex = 0;
 
             function changeQuote() {
                 const quoteText = document.getElementById("quote-text");
+                const studyImage = document.getElementById("study-image");
+
                 quoteText.classList.remove("fade-in");
+                studyImage.classList.remove("fade-in");
                 void quoteText.offsetWidth;
-                quoteIndex = (quoteIndex + 1) % quotes.length;
+                void studyImage.offsetWidth;
+
+                quoteIndex = Math.floor(Math.random() * quotes.length);
                 quoteText.textContent = quotes[quoteIndex];
+
+                imageIndex = (imageIndex + 1 + Math.floor(Math.random() * (studyImages.length - 1))) % studyImages.length;
+                studyImage.src = studyImages[imageIndex].src;
+                studyImage.alt = studyImages[imageIndex].alt;
+
                 quoteText.classList.add("fade-in");
+                studyImage.classList.add("fade-in");
             }
         </script>
     </body>

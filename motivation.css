@@ -29,8 +29,10 @@ nav a {
 .motivation-container {
     min-height: 80vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 24px;
     padding: 20px;
 }
 
@@ -45,6 +47,12 @@ nav a {
     cursor: pointer;
 }
 
+.image-frame {
+    width: min(90vw, 720px);
+    display: flex;
+    justify-content: center;
+}
+
 #quote-text {
     margin: 0;
     font-size: 1.8rem;
@@ -52,8 +60,19 @@ nav a {
     color: #2f3e46;
 }
 
-#quote-text.fade-in {
-    animation: fadeIn 0.6s ease;
+#study-image {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+#quote-text.fade-in,
+#study-image.fade-in {
+    animation: fadeIn 0.7s ease;
 }
 
 @keyframes fadeIn {
